@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>DuoBar</string>
+	<key>CFBundleExecutable</key>
+	<string>DuoBarOnMac</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.duobar.mac</string>
+	<key>CFBundleName</key>
+	<string>DuoBar</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.1</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>14.0</string>
+	<key>LSUIElement</key>
+	<true/>
+	<key>NSLocationUsageDescription</key>
+	<string>DuoBar 仅在你主动需要显示 Wi‑Fi 名称时读取本地网络名称。</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>DuoBar 需要读取蓝牙连接状态，以在菜单栏和详情中显示已连接设备。</string>
+</dict>
+</plist>

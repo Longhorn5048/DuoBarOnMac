@@ -1,0 +1,4 @@
+.build/
+.DS_Store
+
+# The prebuilt app bundle is intentionally included in the repository.
