@@ -1,6 +1,6 @@
 # DuoBarOnMac
 
-一个原生 macOS 菜单栏状态工具：用一个简洁图标同时呈现 Mac 电池与 Wi‑Fi 状态。
+一个原生 macOS 菜单栏状态工具：用一个简洁图标同时呈现 Mac 电池与 Wi‑Fi 状态，灵感来源于 iPhone Duo 的菜单栏图标。
 
 最低支持 macOS 14。仓库包含完整 Swift 源码、自动化测试、构建脚本，以及一个可直接运行的预构建 `DuoBar.app`。
 
