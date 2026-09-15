@@ -91,26 +91,7 @@ struct DuoGlyphView: View {
     }
 
     private var accessibilityLabel: String {
-        if let transient = snapshot.transientPresentation {
-            switch transient.kind {
-            case .chargingStarted: return "DuoBar，开始充电"
-            case .fullyCharged: return "DuoBar，电池已充满"
-            case .chargingPaused: return "DuoBar，已接电源，暂停充电"
-            case .unplugged: return "DuoBar，已拔出电源"
-            case .bluetoothConnected: return "DuoBar，蓝牙设备已连接"
-            case .bluetoothDisconnected: return "DuoBar，蓝牙设备已断开"
-            case .wifiConnected: return "DuoBar，Wi‑Fi 已连接"
-            case .wifiDisconnected: return "DuoBar，Wi‑Fi 已断开"
-            }
-        }
-
-        let batteryText = snapshot.batteryPercent.map { "电量 \($0)%" } ?? "电量未知"
-        switch snapshot.wifiStatus {
-        case .connected: return "DuoBar，\(batteryText)，Wi‑Fi 已连接"
-        case .disconnected: return "DuoBar，\(batteryText)，Wi‑Fi 未连接"
-        case .disabled: return "DuoBar，\(batteryText)，Wi‑Fi 已关闭"
-        case .unknown: return "DuoBar，\(batteryText)，Wi‑Fi 未知"
-        }
+        DuoText.glyphAccessibility(snapshot)
     }
 }
 

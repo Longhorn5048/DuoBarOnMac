@@ -1,0 +1,2 @@
+"NSLocationUsageDescription" = "僅在你選擇顯示 Wi‑Fi 名稱時，DuoBar 才會讀取本機網路名稱。";
+"NSBluetoothAlwaysUsageDescription" = "DuoBar 需要讀取藍牙連線狀態，以在選單列和詳細資訊中顯示已連線裝置。";

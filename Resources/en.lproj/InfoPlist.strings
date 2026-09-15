@@ -1,0 +1,2 @@
+"NSLocationUsageDescription" = "DuoBar reads the local network name only when you choose to show the Wi‑Fi name.";
+"NSBluetoothAlwaysUsageDescription" = "DuoBar reads Bluetooth connection state to show connected devices in the menu bar and details.";

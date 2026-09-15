@@ -9,8 +9,8 @@ enum CenterMode: Int, CaseIterable, Codable, Equatable, Identifiable {
 
     var title: LocalizedStringResource {
         switch self {
-        case .wifi: "Wi‑Fi"
-        case .battery: "电量"
+        case .wifi: DuoText.wifi
+        case .battery: DuoText.battery
         }
     }
 }

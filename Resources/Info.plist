@@ -21,8 +21,8 @@
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSLocationUsageDescription</key>
-	<string>DuoBar 仅在你主动需要显示 Wi‑Fi 名称时读取本地网络名称。</string>
+	<string>DuoBar reads the local network name only when you choose to show the Wi‑Fi name.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>DuoBar 需要读取蓝牙连接状态，以在菜单栏和详情中显示已连接设备。</string>
+	<string>DuoBar reads Bluetooth connection state to show connected devices in the menu bar and details.</string>
 </dict>
 </plist>

@@ -20,11 +20,11 @@ final class NativeMenuService {
         guard AXIsProcessTrusted() else {
             let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true]
             _ = AXIsProcessTrustedWithOptions(options as CFDictionary)
-            errorMessage = "请先在辅助功能中允许 DuoBar，再重试"
+            errorMessage = DuoText.resolve(DuoText.accessibilityPermissionError)
             return
         }
         guard let process = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.controlcenter").first else {
-            errorMessage = "系统控制中心未运行"
+            errorMessage = DuoText.resolve(DuoText.controlCenterUnavailableError)
             return
         }
         let application = AXUIElementCreateApplication(process.processIdentifier)
@@ -35,12 +35,16 @@ final class NativeMenuService {
         }) else {
             // Hidden menu extras are not guaranteed to remain in the AX tree.
             // Do not silently open an unrelated settings page or report success.
-            errorMessage = "无法访问原生菜单；请先在系统设置中显示对应图标"
+            errorMessage = DuoText.resolve(DuoText.nativeMenuUnavailableError)
             return
         }
         let result = AXUIElementPerformAction(item, kAXPressAction as CFString)
         if result != .success {
-            errorMessage = "系统未能打开原生菜单（\(result.rawValue)）"
+            errorMessage = DuoText.resolve(LocalizedStringResource(
+                "native_menu_open_error",
+                defaultValue: "System could not open the native menu (\(result.rawValue))",
+                bundle: .module
+            ))
         }
     }
 

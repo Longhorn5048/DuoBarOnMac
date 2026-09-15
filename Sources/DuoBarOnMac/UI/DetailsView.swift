@@ -3,8 +3,6 @@ import SwiftUI
 
 struct DetailsView: View {
     let model: PresentationState
-    let lowPowerMode: LowPowerModeService
-    @State private var nativeMenus = NativeMenuService()
     let isLaunchAtLogin: Bool
     let onModeChange: (CenterMode) -> Void
     let onLaunchAtLoginChange: (Bool) -> Void
@@ -14,20 +12,6 @@ struct DetailsView: View {
     var body: some View {
         VStack(spacing: 12) {
             StatusSummarySection(battery: model.battery, wifi: model.wifi, bluetooth: model.bluetooth)
-            ChargingDetailsSection(battery: model.battery, onOpenBattery: { nativeMenus.open(.battery) })
-            Divider()
-            LowPowerSection(service: lowPowerMode, powerStatus: model.battery.powerStatus,
-                            onOpenBattery: { nativeMenus.open(.battery) })
-            HStack {
-                Button("电池菜单…") { nativeMenus.open(.battery) }
-                Spacer()
-                Button("Wi-Fi 菜单…") { nativeMenus.open(.wifi) }
-            }
-            .buttonStyle(.plain)
-            .font(.system(size: 13))
-            if let error = nativeMenus.errorMessage {
-                Text(verbatim: error).font(.caption).foregroundStyle(.red)
-            }
             ModePickerSection(mode: model.centerMode, onModeChange: onModeChange)
             Divider()
             SettingsSection(
@@ -42,38 +26,6 @@ struct DetailsView: View {
         .frame(width: 280)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .onReceive(NotificationCenter.default.publisher(for: .NSProcessInfoPowerStateDidChange)) { _ in
-            guard model.isPanelPresented else { return }
-            Task { await lowPowerMode.refresh() }
-        }
-    }
-}
-
-private struct ChargingDetailsSection: View {
-    let battery: BatteryState
-    let onOpenBattery: () -> Void
-
-    var body: some View {
-        if battery.powerStatus == .connectedPaused {
-            HStack {
-                Text("充电已暂停").foregroundStyle(.secondary)
-                Spacer()
-                Button("充电选项…", action: onOpenBattery)
-                    .buttonStyle(.plain)
-                    .help("打开原生电池菜单查看排程及立即充满选项")
-            }
-            .font(.system(size: 12))
-        } else if battery.isFinishingCharge {
-            Text("正在完成充电")
-                .font(.system(size: 12))
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        } else if let minutes = battery.minutesToFull {
-            Text("约 \(minutes) 分钟充满")
-                .font(.system(size: 12))
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
     }
 }
 
@@ -82,7 +34,7 @@ private struct ModePickerSection: View {
     let onModeChange: (CenterMode) -> Void
 
     var body: some View {
-        Picker("中心显示", selection: Binding(get: { mode }, set: onModeChange)) {
+        Picker(DuoText.centerDisplay, selection: Binding(get: { mode }, set: onModeChange)) {
             ForEach(CenterMode.allCases) { option in
                 Text(option.title).tag(option)
             }
@@ -99,37 +51,31 @@ private struct StatusSummarySection: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            StatusRow(symbol: battery.powerStatus == .charging ? "battery.100.bolt" : "battery.100", title: "电池", value: batteryValue)
-            StatusRow(symbol: "wifi", title: "Wi-Fi", value: wifiValue)
-            StatusRow(symbol: "antenna.radiowaves.left.and.right", title: "蓝牙", value: bluetoothValue)
+            StatusRow(symbol: battery.powerStatus == .charging ? "battery.100.bolt" : "battery.100", title: DuoText.battery, value: batteryValue)
+            StatusRow(symbol: "wifi", title: DuoText.wifi, value: wifiValue)
+            StatusRow(symbol: "antenna.radiowaves.left.and.right", title: DuoText.bluetooth, value: bluetoothValue)
         }
     }
 
     private var batteryValue: String {
-        let value = battery.percent.map { "\($0)%" } ?? "—"
-        switch battery.powerStatus {
-        case .charging: return "\(value) · 充电中"
-        case .connectedPaused: return "\(value) · 暂停充电"
-        case .charged: return "\(value) · 已充满"
-        default: return value
-        }
+        DuoText.batteryValue(percent: battery.percent, status: battery.powerStatus)
     }
 
     private var wifiValue: String {
         switch wifi.status {
-        case .connected: return wifi.name ?? "已连接"
-        case .disconnected: return "未连接"
-        case .disabled: return "已关闭"
-        case .unknown: return "—"
+        case .connected: return wifi.name ?? DuoText.resolve(DuoText.connected)
+        case .disconnected: return DuoText.resolve(DuoText.notConnected)
+        case .disabled: return DuoText.resolve(DuoText.off)
+        case .unknown: return DuoText.resolve(DuoText.unknown)
         }
     }
 
     private var bluetoothValue: String {
-        guard bluetooth.availability == .available else { return "—" }
+        guard bluetooth.availability == .available else { return DuoText.resolve(DuoText.unknown) }
         switch bluetooth.connectedCount {
-        case 0: return "未连接"
+        case 0: return DuoText.resolve(DuoText.notConnected)
         case 1: return bluetooth.connectedDevices[0].name
-        default: return "\(bluetooth.connectedCount) 台设备"
+        default: return DuoText.bluetoothDevices(count: bluetooth.connectedCount)
         }
     }
 }
@@ -148,36 +94,7 @@ private struct StatusRow: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .truncationMode(.middle)
-                .help(value)
-        }
-        .font(.system(size: 13))
-    }
-}
-
-private struct LowPowerSection: View {
-    let service: LowPowerModeService
-    let powerStatus: PowerStatus
-    let onOpenBattery: () -> Void
-
-    private var profile: PowerProfile? {
-        switch powerStatus {
-        case .onBattery: return .battery
-        case .charging, .charged, .connectedPaused: return .adapter
-        case .unknown: return nil
-        }
-    }
-
-    var body: some View {
-        HStack {
-            Text("低电量模式")
-            Spacer()
-            Text(profile.flatMap { service.settings[$0] }.map { $0 ? "已开启" : "已关闭" } ?? "—")
-                .foregroundStyle(.secondary)
-            Button(action: onOpenBattery) {
-                Image(systemName: "chevron.right")
-            }
-            .buttonStyle(.plain)
-            .help("在原生电池菜单中更改能源模式")
+                .help(Text(verbatim: value))
         }
         .font(.system(size: 13))
     }
@@ -192,13 +109,13 @@ private struct SettingsSection: View {
 
     var body: some View {
         VStack(spacing: 9) {
-            Toggle("状态提醒", isOn: Binding(get: { eventHintsEnabled }, set: onEventHintsChange))
-            Toggle("登录时启动", isOn: Binding(get: { isLaunchAtLogin }, set: onLaunchAtLoginChange))
+            Toggle(DuoText.statusHints, isOn: Binding(get: { eventHintsEnabled }, set: onEventHintsChange))
+            Toggle(DuoText.launchAtLogin, isOn: Binding(get: { isLaunchAtLogin }, set: onLaunchAtLoginChange))
             HStack {
-                Button("系统图标…", action: openSystemIconSettings)
-                    .help("在系统设置中隐藏电池与 Wi-Fi 图标")
+                Button(DuoText.systemIcons, action: openSystemIconSettings)
+                    .help(Text(DuoText.systemIconsHelp))
                 Spacer()
-                Button("退出", action: onQuit)
+                Button(DuoText.quit, action: onQuit)
             }
             .buttonStyle(.plain)
             .foregroundStyle(.secondary)

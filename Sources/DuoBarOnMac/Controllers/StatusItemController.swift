@@ -27,7 +27,7 @@ final class StatusItemController: NSObject {
         button.action = #selector(togglePanel)
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
         button.toolTip = "DuoBar"
-        button.setAccessibilityLabel("DuoBar 电池与 Wi‑Fi 状态")
+        button.setAccessibilityLabel(DuoText.resolve(DuoText.statusItemLabel))
         panelController = DetailsPanelController(
             model: model,
             motion: motion,
@@ -72,29 +72,7 @@ final class StatusItemController: NSObject {
     }
 
     private func accessibilityValue(for snapshot: GlyphSnapshot) -> String {
-        if let transient = snapshot.transientPresentation {
-            let names = transient.entityNames.isEmpty ? "" : "：" + transient.entityNames.joined(separator: "、")
-            switch transient.kind {
-            case .chargingStarted: return "开始充电"
-            case .fullyCharged: return "电池已充满"
-            case .chargingPaused: return "已接电源，暂停充电"
-            case .unplugged: return "已拔出电源"
-            case .bluetoothConnected: return "蓝牙设备已连接\(names)"
-            case .bluetoothDisconnected: return "蓝牙设备已断开\(names)"
-            case .wifiConnected: return "Wi‑Fi 已连接"
-            case .wifiDisconnected: return "Wi‑Fi 已断开"
-            }
-        }
-
-        let battery = snapshot.batteryPercent.map { "电量 \($0)%" } ?? "电量未知"
-        let wifi: String
-        switch snapshot.wifiStatus {
-        case .connected: wifi = "Wi‑Fi 已连接"
-        case .disconnected: wifi = "Wi‑Fi 未连接"
-        case .disabled: wifi = "Wi‑Fi 已关闭"
-        case .unknown: wifi = "Wi‑Fi 状态未知"
-        }
-        return "\(battery)，\(wifi)" + (snapshot.powerStatus == .charging ? "，正在充电" : "")
+        DuoText.statusItemAccessibility(snapshot)
     }
 
     private func observeModel() {

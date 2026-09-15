@@ -4,6 +4,7 @@ import PackageDescription
 
 let package = Package(
     name: "DuoBarOnMac",
+    defaultLocalization: "en",
     platforms: [
         .macOS(.v14)
     ],
@@ -13,7 +14,8 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "DuoBarOnMac",
-            path: "Sources/DuoBarOnMac"
+            path: "Sources/DuoBarOnMac",
+            resources: [.process("Resources")]
         ),
         .testTarget(
             name: "DuoBarOnMacTests",

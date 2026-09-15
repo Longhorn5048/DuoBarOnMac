@@ -6,7 +6,6 @@ final class DetailsPanelController {
     private let model: PresentationState
     private let motion: MotionCoordinator
     private let launchAtLogin: LaunchAtLoginService
-    private let lowPowerMode = LowPowerModeService()
     private weak var statusButton: NSStatusBarButton?
     private var panel: DetailsPanel?
     private var localMonitor: Any?
@@ -35,7 +34,6 @@ final class DetailsPanelController {
             makePanel()
         }
         guard let panel else { return }
-        Task { await lowPowerMode.refresh() }
         position(panel)
         let finalFrame = panel.frame
         var initialFrame = finalFrame
@@ -88,7 +86,6 @@ final class DetailsPanelController {
         let panel = DetailsPanel()
         let content = DetailsView(
             model: model,
-            lowPowerMode: lowPowerMode,
             isLaunchAtLogin: isLaunchAtLogin,
             onModeChange: { [weak self] mode in
                 self?.motion.move(to: mode)
@@ -113,7 +110,6 @@ final class DetailsPanelController {
         // Rebuild the root view so the toggle reflects the result immediately.
         panel?.contentView = NSHostingView(rootView: DetailsView(
             model: model,
-            lowPowerMode: lowPowerMode,
             isLaunchAtLogin: isLaunchAtLogin,
             onModeChange: { [weak self] mode in self?.motion.move(to: mode) },
             onLaunchAtLoginChange: { [weak self] value in self?.setLaunchAtLogin(value) },
