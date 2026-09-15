@@ -1,4 +1,8 @@
 .build/
 .DS_Store
 
+# Design references and packaged archives are kept out of the source release.
+Design/
+DuoBar.zip
+
 # The prebuilt app bundle is intentionally included in the repository.
