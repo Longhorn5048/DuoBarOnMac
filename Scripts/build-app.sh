@@ -3,13 +3,14 @@ set -euo pipefail
 
 project_dir="$(cd "$(dirname "$0")/.." && pwd)"
 build_dir="$project_dir/.build/release"
-app_dir="$project_dir/DuoBar.app"
+app_dir="${1:-$project_dir/DuoBar.app}"
 
 swift build -c release --package-path "$project_dir"
 rm -rf "$app_dir"
 mkdir -p "$app_dir/Contents/MacOS" "$app_dir/Contents/Resources"
 cp "$build_dir/DuoBarOnMac" "$app_dir/Contents/MacOS/DuoBarOnMac"
 cp "$project_dir/Resources/Info.plist" "$app_dir/Contents/Info.plist"
+cp "$project_dir/Resources/AppIcon.icns" "$app_dir/Contents/Resources/AppIcon.icns"
 cp -R "$build_dir/DuoBarOnMac_DuoBarOnMac.bundle" "$app_dir/Contents/Resources/"
 
 for localization_dir in "$project_dir"/Resources/*.lproj; do

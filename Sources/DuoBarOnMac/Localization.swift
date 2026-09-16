@@ -13,6 +13,8 @@ enum DuoText {
     static let connected = resource("connected", defaultValue: "Connected")
     static let notConnected = resource("not_connected", defaultValue: "Not Connected")
     static let off = resource("off", defaultValue: "Off")
+    static let appearance = resource("appearance", defaultValue: "Appearance")
+    static let wifiSignalColor = resource("wifi_signal_color", defaultValue: "Wi‑Fi Signal Color")
     static let statusHints = resource("status_hints", defaultValue: "Status Hints")
     static let launchAtLogin = resource("launch_at_login", defaultValue: "Launch at Login")
     static let systemIcons = resource("system_icons", defaultValue: "System Icons…")
@@ -166,14 +168,17 @@ enum DuoText {
             }
         }
 
-        guard let percent = snapshot.batteryPercent else {
-            return resolve(glyphUnknownResource(snapshot.wifiStatus))
+        let label: String
+        if let percent = snapshot.batteryPercent {
+            label = resolve(glyphStatusResource(
+                wifiStatus: snapshot.wifiStatus,
+                percent: percent,
+                charging: snapshot.powerStatus == .charging
+            ))
+        } else {
+            label = resolve(glyphUnknownResource(snapshot.wifiStatus))
         }
-        return resolve(glyphStatusResource(
-            wifiStatus: snapshot.wifiStatus,
-            percent: percent,
-            charging: snapshot.powerStatus == .charging
-        ))
+        return includingWiFiSignalStrength(label, snapshot: snapshot)
     }
 
     static func statusItemAccessibility(_ snapshot: GlyphSnapshot) -> String {
@@ -181,14 +186,17 @@ enum DuoText {
             return eventAccessibility(kind: transient.kind, names: transient.entityNames)
         }
 
-        guard let percent = snapshot.batteryPercent else {
-            return resolve(statusUnknownResource(snapshot.wifiStatus))
+        let label: String
+        if let percent = snapshot.batteryPercent {
+            label = resolve(statusResource(
+                wifiStatus: snapshot.wifiStatus,
+                percent: percent,
+                charging: snapshot.powerStatus == .charging
+            ))
+        } else {
+            label = resolve(statusUnknownResource(snapshot.wifiStatus))
         }
-        return resolve(statusResource(
-            wifiStatus: snapshot.wifiStatus,
-            percent: percent,
-            charging: snapshot.powerStatus == .charging
-        ))
+        return includingWiFiSignalStrength(label, snapshot: snapshot)
     }
 
     static func eventAccessibility(kind: TransientEventKind, names: [String]) -> String {
@@ -216,6 +224,14 @@ enum DuoText {
 
     static func resolve(_ resource: LocalizedStringResource) -> String {
         return String(localized: resource)
+    }
+
+    private static func includingWiFiSignalStrength(_ label: String, snapshot: GlyphSnapshot) -> String {
+        guard snapshot.wifiStatus == .connected, let strength = snapshot.wifiStrength else { return label }
+        return resolve(resource(
+            "accessibility_wifi_signal",
+            defaultValue: "\(label), Wi‑Fi signal strength: \(strength) of 4 bars"
+        ))
     }
 
     private static func glyphUnknownResource(_ status: WiFiStatus) -> LocalizedStringResource {

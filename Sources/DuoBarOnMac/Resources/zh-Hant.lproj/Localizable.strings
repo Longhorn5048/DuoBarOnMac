@@ -8,6 +8,8 @@
 "connected" = "已連線";
 "not_connected" = "未連線";
 "off" = "已關閉";
+"appearance" = "外觀";
+"wifi_signal_color" = "Wi‑Fi 訊號顏色";
 "status_hints" = "狀態提醒";
 "launch_at_login" = "登入時啟動";
 "system_icons" = "系統圖示…";
@@ -68,3 +70,5 @@
 "glyph_battery_charging_disconnected" = "DuoBar，電量 %lld%%，Wi‑Fi 未連線，正在充電";
 "glyph_battery_charging_off" = "DuoBar，電量 %lld%%，Wi‑Fi 已關閉，正在充電";
 "glyph_battery_charging_unknown" = "DuoBar，電量 %lld%%，Wi‑Fi 未知，正在充電";
+/* VoiceOver 狀態補充；%@ 為完整狀態，%lld 為有效訊號格數。 */
+"accessibility_wifi_signal" = "%@，Wi‑Fi 訊號強度 %lld 格（共 4 格）";

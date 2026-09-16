@@ -23,6 +23,20 @@ final class PresentationStateTests: XCTestCase {
     }
 
     @MainActor
+    func testWiFiColorDefaultsOnAndPersists() {
+        let suiteName = "DuoBarOnMacTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let model = PresentationState(preferences: AppPreferences(defaults: defaults))
+        XCTAssertTrue(model.wifiColorEnabled)
+
+        model.wifiColorEnabled = false
+        let restored = PresentationState(preferences: AppPreferences(defaults: defaults))
+        XCTAssertFalse(restored.wifiColorEnabled)
+    }
+
+    @MainActor
     func testIncompletePowerDescriptionRemainsUnknown() {
         let state = PowerProvider.state(from: [
             kIOPSPowerSourceStateKey: kIOPSACPowerValue

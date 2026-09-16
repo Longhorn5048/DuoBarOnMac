@@ -111,6 +111,7 @@ final class AppPreferences {
     private let defaults: UserDefaults
     private let centerModeKey = "centerMode"
     private let eventHintsEnabledKey = "eventHintsEnabled"
+    private let wifiColorEnabledKey = "wifiColorEnabled"
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -134,6 +135,14 @@ final class AppPreferences {
         }
         set { defaults.set(newValue, forKey: eventHintsEnabledKey) }
     }
+
+    var wifiColorEnabled: Bool {
+        get {
+            guard defaults.object(forKey: wifiColorEnabledKey) != nil else { return true }
+            return defaults.bool(forKey: wifiColorEnabledKey)
+        }
+        set { defaults.set(newValue, forKey: wifiColorEnabledKey) }
+    }
 }
 
 @MainActor
@@ -149,6 +158,9 @@ final class PresentationState {
     var transientPresentation: TransientPresentation?
     var isPanelPresented = false
     var eventHintsEnabled: Bool
+    var wifiColorEnabled: Bool {
+        didSet { preferences.wifiColorEnabled = wifiColorEnabled }
+    }
 
     private let preferences: AppPreferences
 
@@ -158,6 +170,7 @@ final class PresentationState {
         centerMode = mode
         transitionProgress = CGFloat(mode.rawValue)
         eventHintsEnabled = preferences.eventHintsEnabled
+        wifiColorEnabled = preferences.wifiColorEnabled
     }
 
     func setCenterMode(_ mode: CenterMode) {
@@ -180,6 +193,7 @@ final class PresentationState {
             batteryAvailability: battery.availability,
             wifiStatus: wifi.status,
             wifiStrength: wifi.strength,
+            wifiColorEnabled: wifiColorEnabled,
             transitionProgress: transitionProgress,
             chargingPulseOpacity: chargingPulseOpacity,
             transientPresentation: transientPresentation,
@@ -195,6 +209,7 @@ struct GlyphSnapshot: Equatable {
     let batteryAvailability: BatteryAvailability
     let wifiStatus: WiFiStatus
     let wifiStrength: Int?
+    let wifiColorEnabled: Bool
     let transitionProgress: CGFloat
     let chargingPulseOpacity: Double
     let transientPresentation: TransientPresentation?

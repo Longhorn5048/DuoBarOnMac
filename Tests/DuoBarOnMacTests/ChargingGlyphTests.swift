@@ -7,8 +7,9 @@ final class ChargingGlyphTests: XCTestCase {
     private func snapshot(_ percent: Int?, _ power: PowerStatus, low: Bool = false) -> GlyphSnapshot {
         GlyphSnapshot(batteryFraction: percent.map { Double($0) / 100 }, batteryPercent: percent,
                       powerStatus: power, batteryAvailability: .available,
-                      wifiStatus: .connected, wifiStrength: 4, transitionProgress: 1,
-                      chargingPulseOpacity: 1, transientPresentation: nil, isLowPowerModeEnabled: low)
+                      wifiStatus: .connected, wifiStrength: 4, wifiColorEnabled: true,
+                      transitionProgress: 1, chargingPulseOpacity: 1,
+                      transientPresentation: nil, isLowPowerModeEnabled: low)
     }
 
     func testColorPriorityAndTenPercentBoundary() {

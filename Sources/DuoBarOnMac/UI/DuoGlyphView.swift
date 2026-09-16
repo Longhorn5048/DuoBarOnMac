@@ -199,6 +199,8 @@ private struct BaseCenterContents: View {
     let foreground: Color
     let metrics: GlyphMetrics
 
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         ZStack {
             ForEach(0..<4, id: \.self) { index in
@@ -208,14 +210,14 @@ private struct BaseCenterContents: View {
                     centerScale: metrics.centerScale
                 )
                 .stroke(
-                    foreground.opacity(wifiOpacity(for: index)),
+                    wifiArcColor(for: index).opacity(wifiOpacity(for: index)),
                     style: StrokeStyle(lineWidth: metrics.centerStroke, lineCap: .round, lineJoin: .round)
                 )
             }
 
             ForEach(0..<4, id: \.self) { index in
                 Circle()
-                    .fill(foreground.opacity(dotOpacity(for: index)))
+                    .fill(wifiDotColor(for: index).opacity(dotOpacity(for: index)))
                     .frame(width: metrics.dotDiameter, height: metrics.dotDiameter)
                     .position(dotPosition(for: index))
             }
@@ -265,6 +267,22 @@ private struct BaseCenterContents: View {
         }
     }
 
+    private func wifiArcColor(for index: Int) -> Color {
+        guard snapshot.wifiColorEnabled,
+              snapshot.wifiStatus == .connected,
+              let strength = snapshot.wifiStrength,
+              index >= 4 - strength else { return foreground }
+        return WiFiSignalPalette.color(for: strength, dark: colorScheme == .dark)
+    }
+
+    private func wifiDotColor(for index: Int) -> Color {
+        guard snapshot.wifiColorEnabled,
+              snapshot.wifiStatus == .connected,
+              let strength = snapshot.wifiStrength,
+              index < strength else { return foreground }
+        return WiFiSignalPalette.color(for: strength, dark: colorScheme == .dark)
+    }
+
     private func wifiOpacity(for index: Int) -> Double {
         let base: Double
         switch snapshot.wifiStatus {
@@ -292,6 +310,22 @@ private struct BaseCenterContents: View {
 
     private func dotPosition(for index: Int) -> CGPoint {
         CGPoint(x: [6.9, 10.3, 13.7, 17.1][index], y: 19.1)
+    }
+}
+
+private enum WiFiSignalPalette {
+    static func color(for strength: Int, dark: Bool) -> Color {
+        switch (strength, dark) {
+        case (4, false): return Color(red: 0.078, green: 0.435, blue: 0.216)
+        case (3, false): return Color(red: 0.369, green: 0.420, blue: 0.043)
+        case (2, false): return Color(red: 0.667, green: 0.306, blue: 0.000)
+        case (1, false): return Color(red: 0.675, green: 0.149, blue: 0.133)
+        case (4, true): return Color(red: 0.294, green: 0.843, blue: 0.490)
+        case (3, true): return Color(red: 0.792, green: 0.847, blue: 0.333)
+        case (2, true): return Color(red: 1.000, green: 0.659, blue: 0.329)
+        case (1, true): return Color(red: 1.000, green: 0.412, blue: 0.380)
+        default: return Color.primary
+        }
     }
 }
 

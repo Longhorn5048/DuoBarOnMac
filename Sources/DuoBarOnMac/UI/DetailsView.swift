@@ -13,6 +13,7 @@ struct DetailsView: View {
         VStack(spacing: 12) {
             StatusSummarySection(battery: model.battery, wifi: model.wifi, bluetooth: model.bluetooth)
             ModePickerSection(mode: model.centerMode, onModeChange: onModeChange)
+            AppearanceSection(model: model)
             Divider()
             SettingsSection(
                 isLaunchAtLogin: isLaunchAtLogin,
@@ -41,6 +42,20 @@ private struct ModePickerSection: View {
         }
         .pickerStyle(.segmented)
         .labelsHidden()
+    }
+}
+
+private struct AppearanceSection: View {
+    @Bindable var model: PresentationState
+    @State private var isExpanded = false
+
+    var body: some View {
+        DisclosureGroup(DuoText.appearance, isExpanded: $isExpanded) {
+            Toggle(DuoText.wifiSignalColor, isOn: $model.wifiColorEnabled)
+        }
+        .toggleStyle(.switch)
+        .controlSize(.small)
+        .font(.system(size: 13))
     }
 }
 
