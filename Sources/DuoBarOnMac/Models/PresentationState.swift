@@ -64,6 +64,22 @@ struct WiFiState: Equatable {
     }
 }
 
+enum WiFiDotCount: Int, CaseIterable, Equatable, Identifiable {
+    case three = 3
+    case four = 4
+
+    var id: Int { rawValue }
+
+    func displayedStrength(for rawStrength: Int?) -> Int? {
+        guard let rawStrength, (1...4).contains(rawStrength) else { return nil }
+        return self == .three ? min(rawStrength, 3) : rawStrength
+    }
+
+    func colorTier(for displayedStrength: Int) -> Int {
+        self == .three && displayedStrength == 3 ? 4 : displayedStrength
+    }
+}
+
 enum BluetoothAvailability: Equatable {
     case available
     case unavailable
@@ -112,6 +128,9 @@ final class AppPreferences {
     private let centerModeKey = "centerMode"
     private let eventHintsEnabledKey = "eventHintsEnabled"
     private let wifiColorEnabledKey = "wifiColorEnabled"
+    private let wifiDotCountKey = "wifiDotCount"
+    private let chargingColorEnabledKey = "chargingColorEnabled"
+    private let batteryColorEnabledKey = "batteryColorEnabled"
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -143,6 +162,33 @@ final class AppPreferences {
         }
         set { defaults.set(newValue, forKey: wifiColorEnabledKey) }
     }
+
+    var wifiDotCount: WiFiDotCount {
+        get {
+            guard let rawValue = defaults.object(forKey: wifiDotCountKey) as? Int,
+                  let count = WiFiDotCount(rawValue: rawValue) else {
+                return .four
+            }
+            return count
+        }
+        set { defaults.set(newValue.rawValue, forKey: wifiDotCountKey) }
+    }
+
+    var chargingColorEnabled: Bool {
+        get {
+            guard defaults.object(forKey: chargingColorEnabledKey) != nil else { return true }
+            return defaults.bool(forKey: chargingColorEnabledKey)
+        }
+        set { defaults.set(newValue, forKey: chargingColorEnabledKey) }
+    }
+
+    var batteryColorEnabled: Bool {
+        get {
+            guard defaults.object(forKey: batteryColorEnabledKey) != nil else { return true }
+            return defaults.bool(forKey: batteryColorEnabledKey)
+        }
+        set { defaults.set(newValue, forKey: batteryColorEnabledKey) }
+    }
 }
 
 @MainActor
@@ -161,6 +207,15 @@ final class PresentationState {
     var wifiColorEnabled: Bool {
         didSet { preferences.wifiColorEnabled = wifiColorEnabled }
     }
+    var wifiDotCount: WiFiDotCount {
+        didSet { preferences.wifiDotCount = wifiDotCount }
+    }
+    var chargingColorEnabled: Bool {
+        didSet { preferences.chargingColorEnabled = chargingColorEnabled }
+    }
+    var batteryColorEnabled: Bool {
+        didSet { preferences.batteryColorEnabled = batteryColorEnabled }
+    }
 
     private let preferences: AppPreferences
 
@@ -171,6 +226,9 @@ final class PresentationState {
         transitionProgress = CGFloat(mode.rawValue)
         eventHintsEnabled = preferences.eventHintsEnabled
         wifiColorEnabled = preferences.wifiColorEnabled
+        wifiDotCount = preferences.wifiDotCount
+        chargingColorEnabled = preferences.chargingColorEnabled
+        batteryColorEnabled = preferences.batteryColorEnabled
     }
 
     func setCenterMode(_ mode: CenterMode) {
@@ -194,6 +252,9 @@ final class PresentationState {
             wifiStatus: wifi.status,
             wifiStrength: wifi.strength,
             wifiColorEnabled: wifiColorEnabled,
+            wifiDotCount: wifiDotCount,
+            chargingColorEnabled: chargingColorEnabled,
+            batteryColorEnabled: batteryColorEnabled,
             transitionProgress: transitionProgress,
             chargingPulseOpacity: chargingPulseOpacity,
             transientPresentation: transientPresentation,
@@ -210,16 +271,23 @@ struct GlyphSnapshot: Equatable {
     let wifiStatus: WiFiStatus
     let wifiStrength: Int?
     let wifiColorEnabled: Bool
+    let wifiDotCount: WiFiDotCount
+    let chargingColorEnabled: Bool
+    let batteryColorEnabled: Bool
     let transitionProgress: CGFloat
     let chargingPulseOpacity: Double
     let transientPresentation: TransientPresentation?
     var isLowPowerModeEnabled: Bool = false
 
     var ringTone: BatteryRingTone {
-        if powerStatus == .charging { return .charging }
-        if let batteryPercent, batteryPercent < 10 { return .critical }
-        if isLowPowerModeEnabled { return .lowPower }
+        if powerStatus == .charging && chargingColorEnabled { return .charging }
+        if batteryColorEnabled, let batteryPercent, batteryPercent < 10 { return .critical }
+        if batteryColorEnabled && isLowPowerModeEnabled { return .lowPower }
         return .normal
+    }
+
+    var displayedWiFiStrength: Int? {
+        wifiDotCount.displayedStrength(for: wifiStrength)
     }
 
     var powerSymbol: String? {

@@ -85,6 +85,9 @@ final class StatusItemController: NSObject {
             _ = model.chargingPulseOpacity
             _ = model.transientPresentation
             _ = model.wifiColorEnabled
+            _ = model.wifiDotCount
+            _ = model.chargingColorEnabled
+            _ = model.batteryColorEnabled
         } onChange: { [weak self] in
             Task { @MainActor in
                 guard let self else { return }
@@ -146,6 +149,9 @@ final class GlyphImageRenderer {
             wifiStatus: snapshot.wifiStatus,
             wifiStrength: snapshot.wifiStrength,
             wifiColorEnabled: snapshot.wifiColorEnabled,
+            wifiDotCount: snapshot.wifiDotCount,
+            chargingColorEnabled: snapshot.chargingColorEnabled,
+            batteryColorEnabled: snapshot.batteryColorEnabled,
             transitionProgress: snapshot.transitionProgress,
             chargingPulseOpacity: pulse,
             transientPresentation: transient,

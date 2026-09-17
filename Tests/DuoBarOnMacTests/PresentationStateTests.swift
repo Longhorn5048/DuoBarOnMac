@@ -4,9 +4,10 @@ import IOKit.ps
 
 final class PresentationStateTests: XCTestCase {
     func testRSSIMapsToFourMonotonicStrengthLevels() {
-        let values = [-50, -60, -70, -80]
+        let values = [-1, -55, -56, -65, -66, -75, -76]
         let strengths = values.map { WiFiState(status: .connected, rssi: $0).strength }
-        XCTAssertEqual(strengths, [4, 3, 2, 1])
+        XCTAssertEqual(strengths, [4, 4, 3, 3, 2, 2, 1])
+        XCTAssertNil(WiFiState(status: .connected, rssi: 0).strength)
     }
 
     func testZeroBatteryDoesNotProduceRingProgress() {
@@ -30,10 +31,38 @@ final class PresentationStateTests: XCTestCase {
 
         let model = PresentationState(preferences: AppPreferences(defaults: defaults))
         XCTAssertTrue(model.wifiColorEnabled)
+        XCTAssertEqual(model.wifiDotCount, .four)
+        XCTAssertTrue(model.chargingColorEnabled)
+        XCTAssertTrue(model.batteryColorEnabled)
 
         model.wifiColorEnabled = false
+        model.wifiDotCount = .three
+        model.chargingColorEnabled = false
+        model.batteryColorEnabled = false
         let restored = PresentationState(preferences: AppPreferences(defaults: defaults))
         XCTAssertFalse(restored.wifiColorEnabled)
+        XCTAssertEqual(restored.wifiDotCount, .three)
+        XCTAssertFalse(restored.chargingColorEnabled)
+        XCTAssertFalse(restored.batteryColorEnabled)
+    }
+
+    func testInvalidWiFiDotCountFallsBackToFour() {
+        let suiteName = "DuoBarOnMacTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        defaults.set(5, forKey: "wifiDotCount")
+
+        XCTAssertEqual(AppPreferences(defaults: defaults).wifiDotCount, .four)
+    }
+
+    func testThreeAndFourDotStrengthMappingsKeepFourLevelSource() {
+        let rawStrengths = [4, 3, 2, 1]
+        XCTAssertEqual(rawStrengths.map { WiFiDotCount.four.displayedStrength(for: $0) }, [4, 3, 2, 1])
+        XCTAssertEqual(rawStrengths.map { WiFiDotCount.three.displayedStrength(for: $0) }, [3, 3, 2, 1])
+        XCTAssertNil(WiFiDotCount.three.displayedStrength(for: nil))
+        XCTAssertNil(WiFiDotCount.three.displayedStrength(for: 0))
+        XCTAssertEqual(WiFiDotCount.three.colorTier(for: 3), 4)
+        XCTAssertEqual(WiFiDotCount.four.colorTier(for: 3), 3)
     }
 
     @MainActor

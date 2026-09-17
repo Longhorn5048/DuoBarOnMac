@@ -9,6 +9,9 @@
 "not_connected" = "未接続";
 "off" = "オフ";
 "appearance" = "外観";
+"wifi_signal_dots" = "Wi‑Fi 信号の点数";
+"charging_color" = "充電時の色";
+"battery_color" = "バッテリーの色";
 "wifi_signal_color" = "Wi‑Fi 信号の色";
 "status_hints" = "状態通知";
 "launch_at_login" = "ログイン時に起動";
@@ -71,4 +74,4 @@
 "glyph_battery_charging_off" = "DuoBar、バッテリー %lld%%、Wi‑Fi オフ、充電中";
 "glyph_battery_charging_unknown" = "DuoBar、バッテリー %lld%%、Wi‑Fi 不明、充電中";
 /* VoiceOver の状態補足。%@ は状態全体、%lld は信号バーの数です。 */
-"accessibility_wifi_signal" = "%@、Wi‑Fi 信号強度は 4 段階中 %lld 段階";
+"accessibility_wifi_signal" = "%@、Wi‑Fi 信号強度 %lld/%lld 段階";

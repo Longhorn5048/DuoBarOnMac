@@ -51,7 +51,23 @@ private struct AppearanceSection: View {
 
     var body: some View {
         DisclosureGroup(DuoText.appearance, isExpanded: $isExpanded) {
-            Toggle(DuoText.wifiSignalColor, isOn: $model.wifiColorEnabled)
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text(DuoText.wifiSignalDots)
+                    Spacer(minLength: 8)
+                    Picker(DuoText.wifiSignalDots, selection: $model.wifiDotCount) {
+                        Text(verbatim: "3").tag(WiFiDotCount.three)
+                        Text(verbatim: "4").tag(WiFiDotCount.four)
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.segmented)
+                    .frame(width: 76)
+                    .accessibilityLabel(Text(DuoText.wifiSignalDots))
+                }
+                Toggle(DuoText.chargingColor, isOn: $model.chargingColorEnabled)
+                Toggle(DuoText.batteryColor, isOn: $model.batteryColorEnabled)
+                Toggle(DuoText.wifiSignalColor, isOn: $model.wifiColorEnabled)
+            }
         }
         .toggleStyle(.switch)
         .controlSize(.small)

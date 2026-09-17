@@ -9,6 +9,9 @@
 "not_connected" = "Non connecté";
 "off" = "Désactivé";
 "appearance" = "Apparence";
+"wifi_signal_dots" = "Nombre de points Wi‑Fi";
+"charging_color" = "Couleur de charge";
+"battery_color" = "Couleur de batterie";
 "wifi_signal_color" = "Couleur du signal Wi‑Fi";
 "status_hints" = "Alertes d’état";
 "launch_at_login" = "Lancer à la connexion";
@@ -71,4 +74,4 @@
 "glyph_battery_charging_off" = "DuoBar, batterie à %lld%%, Wi‑Fi désactivé, en charge";
 "glyph_battery_charging_unknown" = "DuoBar, batterie à %lld%%, Wi‑Fi inconnu, en charge";
 /* Complément VoiceOver ; %@ est l’état complet et %lld le nombre de barres. */
-"accessibility_wifi_signal" = "%@, intensité du signal Wi‑Fi : %lld barres sur 4";
+"accessibility_wifi_signal" = "%@, intensité du signal Wi‑Fi : %lld barres sur %lld";

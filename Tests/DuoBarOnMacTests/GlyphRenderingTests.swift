@@ -59,6 +59,53 @@ final class GlyphRenderingTests: XCTestCase {
         XCTAssertTrue(monochrome === sameStrength)
     }
 
+    func testWiFiDotCountInvalidatesImageAndSameStrengthStillHitsCache() {
+        let suiteName = "DuoBarOnMacTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let model = PresentationState(preferences: AppPreferences(defaults: defaults))
+        model.wifi = WiFiState(status: .connected, rssi: -50)
+        let renderer = GlyphImageRenderer()
+        let fourDots = renderer.image(snapshot: model.glyphSnapshot, displaySize: 24, scale: 2, dark: false)
+
+        model.wifiDotCount = .three
+        let threeDots = renderer.image(snapshot: model.glyphSnapshot, displaySize: 24, scale: 2, dark: false)
+        XCTAssertFalse(fourDots === threeDots)
+
+        model.wifi.rssi = -54
+        let sameThreeDotTier = renderer.image(snapshot: model.glyphSnapshot, displaySize: 24, scale: 2, dark: false)
+        XCTAssertTrue(threeDots === sameThreeDotTier)
+    }
+
+    func testAllSixteenPointAndColorPreferenceCombinationsRender() {
+        let suiteName = "DuoBarOnMacTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let model = PresentationState(preferences: AppPreferences(defaults: defaults))
+        model.wifi = WiFiState(status: .connected, rssi: -50)
+        model.battery = BatteryState(availability: .available, percent: 5, powerStatus: .charging)
+        model.isLowPowerModeEnabled = true
+        let renderer = GlyphImageRenderer()
+
+        for dotCount in WiFiDotCount.allCases {
+            for chargingColor in [false, true] {
+                for batteryColor in [false, true] {
+                    for wifiColor in [false, true] {
+                        model.wifiDotCount = dotCount
+                        model.chargingColorEnabled = chargingColor
+                        model.batteryColorEnabled = batteryColor
+                        model.wifiColorEnabled = wifiColor
+
+                        let snapshot = model.glyphSnapshot
+                        let image = renderer.image(snapshot: snapshot, displaySize: 24, scale: 2, dark: false)
+                        XCTAssertGreaterThan(image.size.width, 0)
+                        XCTAssertEqual(snapshot.displayedWiFiStrength, dotCount == .three ? 3 : 4)
+                    }
+                }
+            }
+        }
+    }
+
     private func hasGreenSignalPixel(in image: NSImage) -> Bool {
         var proposedRect = NSRect(origin: .zero, size: image.size)
         guard let cgImage = image.cgImage(forProposedRect: &proposedRect, context: nil, hints: nil) else {

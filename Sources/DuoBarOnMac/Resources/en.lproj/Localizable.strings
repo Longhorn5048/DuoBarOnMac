@@ -9,6 +9,9 @@
 "not_connected" = "Not Connected";
 "off" = "Off";
 "appearance" = "Appearance";
+"wifi_signal_dots" = "Wi‑Fi Signal Dots";
+"charging_color" = "Charging Color";
+"battery_color" = "Battery Color";
 "wifi_signal_color" = "Wi‑Fi Signal Color";
 "status_hints" = "Status Hints";
 "launch_at_login" = "Launch at Login";
@@ -70,5 +73,5 @@
 "glyph_battery_charging_disconnected" = "DuoBar, Battery %lld%%, Wi‑Fi not connected, Charging";
 "glyph_battery_charging_off" = "DuoBar, Battery %lld%%, Wi‑Fi off, Charging";
 "glyph_battery_charging_unknown" = "DuoBar, Battery %lld%%, Wi‑Fi unknown, Charging";
-/* VoiceOver status suffix; %@ is the full status and %lld is the signal-bar count. */
-"accessibility_wifi_signal" = "%@, Wi‑Fi signal strength: %lld of 4 bars";
+/* VoiceOver suffix; %@ is the full status, then the current and total Wi‑Fi bar counts. */
+"accessibility_wifi_signal" = "%@, Wi‑Fi signal strength: %lld of %lld bars";

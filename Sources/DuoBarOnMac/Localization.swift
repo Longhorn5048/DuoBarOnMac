@@ -14,6 +14,9 @@ enum DuoText {
     static let notConnected = resource("not_connected", defaultValue: "Not Connected")
     static let off = resource("off", defaultValue: "Off")
     static let appearance = resource("appearance", defaultValue: "Appearance")
+    static let wifiSignalDots = resource("wifi_signal_dots", defaultValue: "Wi‑Fi Signal Dots")
+    static let chargingColor = resource("charging_color", defaultValue: "Charging Color")
+    static let batteryColor = resource("battery_color", defaultValue: "Battery Color")
     static let wifiSignalColor = resource("wifi_signal_color", defaultValue: "Wi‑Fi Signal Color")
     static let statusHints = resource("status_hints", defaultValue: "Status Hints")
     static let launchAtLogin = resource("launch_at_login", defaultValue: "Launch at Login")
@@ -199,6 +202,20 @@ enum DuoText {
         return includingWiFiSignalStrength(label, snapshot: snapshot)
     }
 
+    static func wifiSignalAccessibilityResource(
+        label: String,
+        strength: Int,
+        dotCount: WiFiDotCount,
+        locale: Locale = .current
+    ) -> LocalizedStringResource {
+        LocalizedStringResource(
+            "accessibility_wifi_signal",
+            defaultValue: "\(label), Wi‑Fi signal strength: \(strength) of \(dotCount.rawValue) bars",
+            locale: locale,
+            bundle: bundle
+        )
+    }
+
     static func eventAccessibility(kind: TransientEventKind, names: [String]) -> String {
         switch kind {
         case .chargingStarted: return resolve(glyphChargingStarted)
@@ -227,10 +244,12 @@ enum DuoText {
     }
 
     private static func includingWiFiSignalStrength(_ label: String, snapshot: GlyphSnapshot) -> String {
-        guard snapshot.wifiStatus == .connected, let strength = snapshot.wifiStrength else { return label }
-        return resolve(resource(
-            "accessibility_wifi_signal",
-            defaultValue: "\(label), Wi‑Fi signal strength: \(strength) of 4 bars"
+        guard snapshot.wifiStatus == .connected,
+              let displayedStrength = snapshot.displayedWiFiStrength else { return label }
+        return resolve(wifiSignalAccessibilityResource(
+            label: label,
+            strength: displayedStrength,
+            dotCount: snapshot.wifiDotCount
         ))
     }
 

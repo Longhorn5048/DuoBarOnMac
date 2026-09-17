@@ -62,17 +62,15 @@ struct DuoGlyphView: View {
     var body: some View {
         ZStack {
             RingShape(progress: 1)
-                .stroke(ringColor.opacity(0.18), style: StrokeStyle(lineWidth: metrics.ringStroke, lineCap: .round))
+                .stroke(foreground.opacity(0.1), style: StrokeStyle(lineWidth: metrics.ringStroke, lineCap: .butt))
 
             RingShape(progress: snapshot.batteryFraction ?? 0)
                 .stroke(
                     ringColor.opacity(snapshot.powerStatus == .charging ? snapshot.chargingPulseOpacity : 1),
-                    style: StrokeStyle(lineWidth: metrics.ringStroke, lineCap: .round)
+                    style: StrokeStyle(lineWidth: metrics.ringStroke, lineCap: .butt)
                 )
 
             CenterMorphView(snapshot: snapshot, foreground: foreground, metrics: metrics)
-
-
         }
         .frame(width: 24, height: 24)
         .scaleEffect(displaySize / 24)
@@ -95,31 +93,38 @@ struct DuoGlyphView: View {
     }
 }
 
-private struct RingShape: Shape {
+struct BatteryRingGeometry {
+    static let startDegrees = 135.0
+    static let trackDegrees = 270.0
+
+    static func clampedProgress(_ progress: Double) -> Double {
+        guard progress.isFinite else { return 0 }
+        return min(max(progress, 0), 1)
+    }
+
+    static func sweepDegrees(for progress: Double) -> Double {
+        trackDegrees * clampedProgress(progress)
+    }
+
+}
+
+struct RingShape: Shape {
     var progress: Double
 
     func path(in rect: CGRect) -> Path {
+        let progress = BatteryRingGeometry.clampedProgress(progress)
         guard progress > 0 else { return Path() }
 
         let center = CGPoint(x: rect.midX, y: rect.midY)
         let radius = min(rect.width, rect.height) / 2 - 1.2
-        let start = 135.0
-        let end = start + 270.0 * min(max(progress, 0), 1)
-        let sampleCount = max(Int((end - start) / 8), 1)
         var path = Path()
-
-        for index in 0...sampleCount {
-            let angle = (start + (end - start) * Double(index) / Double(sampleCount)) * .pi / 180
-            let point = CGPoint(
-                x: center.x + radius * cos(angle),
-                y: center.y + radius * sin(angle)
-            )
-            if index == 0 {
-                path.move(to: point)
-            } else {
-                path.addLine(to: point)
-            }
-        }
+        path.addArc(
+            center: center,
+            radius: radius,
+            startAngle: .degrees(BatteryRingGeometry.startDegrees),
+            endAngle: .degrees(BatteryRingGeometry.startDegrees + BatteryRingGeometry.sweepDegrees(for: progress)),
+            clockwise: false
+        )
         return path
     }
 }
@@ -207,7 +212,8 @@ private struct BaseCenterContents: View {
                 MorphingSegmentShape(
                     index: index,
                     progress: centerProgress,
-                    centerScale: metrics.centerScale
+                    centerScale: metrics.centerScale,
+                    dotCount: snapshot.wifiDotCount
                 )
                 .stroke(
                     wifiArcColor(for: index).opacity(wifiOpacity(for: index)),
@@ -215,7 +221,7 @@ private struct BaseCenterContents: View {
                 )
             }
 
-            ForEach(0..<4, id: \.self) { index in
+            ForEach(0..<snapshot.wifiDotCount.rawValue, id: \.self) { index in
                 Circle()
                     .fill(wifiDotColor(for: index).opacity(dotOpacity(for: index)))
                     .frame(width: metrics.dotDiameter, height: metrics.dotDiameter)
@@ -270,26 +276,39 @@ private struct BaseCenterContents: View {
     private func wifiArcColor(for index: Int) -> Color {
         guard snapshot.wifiColorEnabled,
               snapshot.wifiStatus == .connected,
-              let strength = snapshot.wifiStrength,
-              index >= 4 - strength else { return foreground }
-        return WiFiSignalPalette.color(for: strength, dark: colorScheme == .dark)
+              let strength = snapshot.displayedWiFiStrength else { return foreground }
+        let signalSegmentCount = snapshot.wifiDotCount == .three ? 3 : 4
+        guard index < signalSegmentCount,
+              index >= signalSegmentCount - strength else { return foreground }
+        return WiFiSignalPalette.color(
+            for: snapshot.wifiDotCount.colorTier(for: strength),
+            dark: colorScheme == .dark
+        )
     }
 
     private func wifiDotColor(for index: Int) -> Color {
         guard snapshot.wifiColorEnabled,
               snapshot.wifiStatus == .connected,
-              let strength = snapshot.wifiStrength,
+              let strength = snapshot.displayedWiFiStrength,
               index < strength else { return foreground }
-        return WiFiSignalPalette.color(for: strength, dark: colorScheme == .dark)
+        return WiFiSignalPalette.color(
+            for: snapshot.wifiDotCount.colorTier(for: strength),
+            dark: colorScheme == .dark
+        )
     }
 
     private func wifiOpacity(for index: Int) -> Double {
         let base: Double
         switch snapshot.wifiStatus {
         case .connected:
-            guard let strength = snapshot.wifiStrength else { return 0.22 * (1 - centerProgress) }
-            // Path order is outer arc, middle arc, inner arc, center point.
-            base = index >= 4 - strength ? 1 : 0.2
+            if snapshot.wifiDotCount == .three && index == 3 {
+                base = 0.72
+            } else if let strength = snapshot.displayedWiFiStrength {
+                let segmentCount = snapshot.wifiDotCount.rawValue
+                base = index >= segmentCount - strength ? 1 : 0.2
+            } else {
+                base = 0.22
+            }
         case .disconnected, .disabled: base = 0.2
         case .unknown: base = 0.35
         }
@@ -300,7 +319,7 @@ private struct BaseCenterContents: View {
         let base: Double
         switch snapshot.wifiStatus {
         case .connected:
-            guard let strength = snapshot.wifiStrength else { base = 0.22; return base * centerProgress }
+            guard let strength = snapshot.displayedWiFiStrength else { base = 0.22; return base * centerProgress }
             base = index < strength ? 1 : 0.22
         case .disconnected, .disabled: base = 0.2
         case .unknown: base = 0.35
@@ -309,7 +328,14 @@ private struct BaseCenterContents: View {
     }
 
     private func dotPosition(for index: Int) -> CGPoint {
-        CGPoint(x: [6.9, 10.3, 13.7, 17.1][index], y: 19.1)
+        WiFiDotLayout.position(index: index, count: snapshot.wifiDotCount)
+    }
+}
+
+private enum WiFiDotLayout {
+    static func position(index: Int, count: WiFiDotCount) -> CGPoint {
+        let positions: [CGFloat] = count == .three ? [8, 12, 16] : [6.9, 10.3, 13.7, 17.1]
+        return CGPoint(x: positions[index], y: 19.1)
     }
 }
 
@@ -357,6 +383,7 @@ private struct MorphingSegmentShape: Shape {
     let index: Int
     var progress: CGFloat
     let centerScale: CGFloat
+    let dotCount: WiFiDotCount
 
     func path(in rect: CGRect) -> Path {
         let wifiPoints: [(CGPoint, CGPoint, CGPoint)] = [
@@ -365,8 +392,10 @@ private struct MorphingSegmentShape: Shape {
             (CGPoint(x: 10.1, y: 14.1), CGPoint(x: 12, y: 12.5), CGPoint(x: 13.9, y: 14.1)),
             (CGPoint(x: 11.99, y: 16), CGPoint(x: 12, y: 16), CGPoint(x: 12.01, y: 16))
         ]
-        let target = CGPoint(x: [6.9, 10.3, 13.7, 17.1][index], y: 19.1)
         let source = wifiPoints[index]
+        let target = index < dotCount.rawValue
+            ? WiFiDotLayout.position(index: index, count: dotCount)
+            : CGPoint(x: 12, y: 19.1)
         let p = min(max(progress, 0), 1)
         let start = source.0.interpolated(to: target, amount: p).scaledAroundCenter(by: centerScale)
         let control = source.1.interpolated(to: target, amount: p).scaledAroundCenter(by: centerScale)
