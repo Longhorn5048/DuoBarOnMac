@@ -1,2 +1,3 @@
-"NSLocationUsageDescription" = "Wi‑Fi 名を表示するよう選択した場合にのみ、DuoBar はローカルネットワーク名を読み取ります。";
+"NSLocationUsageDescription" = "接続中の Wi‑Fi 名を表示するには、macOS の位置情報の許可が必要です。DuoBar は位置情報を収集しません。";
+"NSLocationWhenInUseUsageDescription" = "接続中の Wi‑Fi 名を表示するには、macOS の位置情報の許可が必要です。DuoBar は位置情報を収集しません。";
 "NSBluetoothAlwaysUsageDescription" = "DuoBar は Bluetooth の接続状態を読み取り、メニューバーと詳細に接続中のデバイスを表示します。";

@@ -1,2 +1,3 @@
-"NSLocationUsageDescription" = "仅当你选择显示 Wi‑Fi 名称时，DuoBar 才会读取本地网络名称。";
+"NSLocationUsageDescription" = "DuoBar 需要定位权限才能显示当前连接的 Wi‑Fi 名称。这是 macOS 的要求，DuoBar 不收集你的位置。";
+"NSLocationWhenInUseUsageDescription" = "DuoBar 需要定位权限才能显示当前连接的 Wi‑Fi 名称。这是 macOS 的要求，DuoBar 不收集你的位置。";
 "NSBluetoothAlwaysUsageDescription" = "DuoBar 需要读取蓝牙连接状态，以在菜单栏和详情中显示已连接设备。";

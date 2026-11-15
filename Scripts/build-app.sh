@@ -4,8 +4,14 @@ set -euo pipefail
 project_dir="$(cd "$(dirname "$0")/.." && pwd)"
 build_dir="$project_dir/.build/release"
 app_dir="${1:-$project_dir/DuoBar.app}"
+sdk_path="$(xcrun --sdk macosx --show-sdk-path)"
+sdk_version="$(xcrun --sdk macosx --show-sdk-version)"
+minimum_os="$(/usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' "$project_dir/Resources/Info.plist")"
 
-swift build -c release --package-path "$project_dir"
+# Keep the linked SDK distinct from the deployment target so macOS enables
+# the current SDK's appearance, including Liquid Glass.
+swift build -c release --package-path "$project_dir" --sdk "$sdk_path" \
+  -Xlinker -platform_version -Xlinker macos -Xlinker "$minimum_os" -Xlinker "$sdk_version"
 rm -rf "$app_dir"
 mkdir -p "$app_dir/Contents/MacOS" "$app_dir/Contents/Resources"
 cp "$build_dir/DuoBarOnMac" "$app_dir/Contents/MacOS/DuoBarOnMac"

@@ -75,3 +75,7 @@
 "glyph_battery_charging_unknown" = "DuoBar、バッテリー %lld%%、Wi‑Fi 不明、充電中";
 /* VoiceOver の状態補足。%@ は状態全体、%lld は信号バーの数です。 */
 "accessibility_wifi_signal" = "%@、Wi‑Fi 信号強度 %lld/%lld 段階";
+
+"show_wifi_name" = "名前を表示…";
+"allow_location" = "位置情報を許可…";
+"wifi_name_permission_help" = "Wi‑Fi 名の取得には macOS の位置情報の許可が必要です。";

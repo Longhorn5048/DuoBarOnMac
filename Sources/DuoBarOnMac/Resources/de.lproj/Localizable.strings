@@ -75,3 +75,7 @@
 "glyph_battery_charging_unknown" = "DuoBar, Batterie %lld%%, Wi‑Fi unbekannt, wird geladen";
 /* VoiceOver-Statuszusatz; %@ ist der vollständige Status, %lld die Balkenzahl. */
 "accessibility_wifi_signal" = "%@, Wi‑Fi-Signalstärke: %lld von %lld Balken";
+
+"show_wifi_name" = "Namen anzeigen…";
+"allow_location" = "Ortung erlauben…";
+"wifi_name_permission_help" = "macOS benötigt die Standortberechtigung, um den Wi‑Fi-Namen zu lesen.";

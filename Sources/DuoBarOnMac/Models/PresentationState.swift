@@ -49,11 +49,19 @@ enum WiFiStatus: Equatable {
     case unknown
 }
 
+enum WiFiNameAccess: Equatable {
+    case notRequested
+    case allowed
+    case denied
+    case servicesDisabled
+}
+
 struct WiFiState: Equatable {
     var status: WiFiStatus = .unknown
     var name: String?
     var rssi: Int?
     var internetAvailable = false
+    var nameAccess: WiFiNameAccess = .notRequested
 
     var strength: Int? {
         guard let rssi, rssi < 0 else { return nil }

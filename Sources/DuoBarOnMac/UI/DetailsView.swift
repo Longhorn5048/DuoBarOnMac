@@ -7,11 +7,15 @@ struct DetailsView: View {
     let onModeChange: (CenterMode) -> Void
     let onLaunchAtLoginChange: (Bool) -> Void
     let onEventHintsChange: (Bool) -> Void
+    let onRequestWiFiName: () -> Void
     let onQuit: () -> Void
 
     var body: some View {
         VStack(spacing: 12) {
-            StatusSummarySection(battery: model.battery, wifi: model.wifi, bluetooth: model.bluetooth)
+            StatusSummarySection(
+                battery: model.battery, wifi: model.wifi, bluetooth: model.bluetooth,
+                onRequestWiFiName: onRequestWiFiName
+            )
             ModePickerSection(mode: model.centerMode, onModeChange: onModeChange)
             AppearanceSection(model: model)
             Divider()
@@ -25,8 +29,17 @@ struct DetailsView: View {
         }
         .padding(16)
         .frame(width: 280)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .modifier(DetailsSurface())
+    }
+}
+
+private struct DetailsSurface: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(macOS 26.0, *) {
+            content.glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        } else {
+            content.background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
     }
 }
 
@@ -79,11 +92,27 @@ private struct StatusSummarySection: View {
     let battery: BatteryState
     let wifi: WiFiState
     let bluetooth: BluetoothState
+    let onRequestWiFiName: () -> Void
 
     var body: some View {
         VStack(spacing: 12) {
             StatusRow(symbol: battery.powerStatus == .charging ? "battery.100.bolt" : "battery.100", title: DuoText.battery, value: batteryValue)
-            StatusRow(symbol: "wifi", title: DuoText.wifi, value: wifiValue)
+            if wifi.status == .connected, wifi.name == nil, wifi.nameAccess != .allowed {
+                HStack(spacing: 9) {
+                    Image(systemName: "wifi").frame(width: 18).foregroundStyle(.secondary)
+                    Text(DuoText.wifi)
+                    Spacer(minLength: 8)
+                    Button(
+                        wifi.nameAccess == .notRequested ? DuoText.showWiFiName : DuoText.allowLocation,
+                        action: onRequestWiFiName
+                    )
+                    .buttonStyle(.link)
+                    .help(Text(DuoText.wifiNamePermissionHelp))
+                }
+                .font(.system(size: 13))
+            } else {
+                StatusRow(symbol: "wifi", title: DuoText.wifi, value: wifiValue)
+            }
             StatusRow(symbol: "antenna.radiowaves.left.and.right", title: DuoText.bluetooth, value: bluetoothValue)
         }
     }

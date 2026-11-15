@@ -15,15 +15,17 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.1.2</string>
+	<string>0.1.3</string>
 	<key>CFBundleVersion</key>
-	<string>3</string>
+	<string>4</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>14.0</string>
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSLocationUsageDescription</key>
-	<string>DuoBar reads the local network name only when you choose to show the Wi‑Fi name.</string>
+	<string>macOS requires Location Services permission for DuoBar to display the connected Wi‑Fi name. DuoBar does not collect your location.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>macOS requires Location Services permission for DuoBar to display the connected Wi‑Fi name. DuoBar does not collect your location.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>DuoBar reads Bluetooth connection state to show connected devices in the menu bar and details.</string>
 </dict>

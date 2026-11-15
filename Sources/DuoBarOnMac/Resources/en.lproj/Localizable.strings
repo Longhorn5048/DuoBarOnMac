@@ -75,3 +75,7 @@
 "glyph_battery_charging_unknown" = "DuoBar, Battery %lld%%, Wi‑Fi unknown, Charging";
 /* VoiceOver suffix; %@ is the full status, then the current and total Wi‑Fi bar counts. */
 "accessibility_wifi_signal" = "%@, Wi‑Fi signal strength: %lld of %lld bars";
+
+"show_wifi_name" = "Show Name…";
+"allow_location" = "Allow Location…";
+"wifi_name_permission_help" = "macOS requires Location Services permission to read the Wi‑Fi name.";

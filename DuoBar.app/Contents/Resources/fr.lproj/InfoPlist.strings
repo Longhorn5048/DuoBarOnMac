@@ -1,2 +1,3 @@
-"NSLocationUsageDescription" = "DuoBar ne lit le nom du réseau local que lorsque vous choisissez d’afficher le nom du Wi‑Fi.";
+"NSLocationUsageDescription" = "macOS exige l’autorisation de localisation pour que DuoBar affiche le nom du Wi‑Fi connecté. DuoBar ne collecte pas votre position.";
+"NSLocationWhenInUseUsageDescription" = "macOS exige l’autorisation de localisation pour que DuoBar affiche le nom du Wi‑Fi connecté. DuoBar ne collecte pas votre position.";
 "NSBluetoothAlwaysUsageDescription" = "DuoBar lit l’état de la connexion Bluetooth pour afficher les appareils connectés dans la barre des menus et les détails.";

@@ -57,7 +57,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         wifiProvider.start()
         bluetoothProvider.start()
 
-        statusItemController = StatusItemController(model: model, motion: motion)
+        statusItemController = StatusItemController(model: model, motion: motion, wifiProvider: wifiProvider)
         statusItemController.start()
     }
 }

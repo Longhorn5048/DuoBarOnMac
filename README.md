@@ -30,6 +30,8 @@ Requires macOS 14 or later and supports Apple Silicon (arm64). This repository i
   Indicates charging, low battery, paused charging, disconnected Wi‑Fi, and connected Bluetooth devices.
 - 提供 SwiftUI 详情面板、登录时启动与退出操作；根据浅色或深色外观适配状态颜色。<br>
   Includes a SwiftUI details panel, launch-at-login and quit controls, and status colors adapted to light or dark appearance.
+- macOS 26 及以上使用原生 Liquid Glass 详情面板；旧系统保留普通毛玻璃。<br>
+  Uses native Liquid Glass for the details panel on macOS 26 and later, with a material fallback on older systems.
 - 支持简体中文、繁体中文、日语、英语、法语、德语和西班牙语，并提供 VoiceOver 信号强度说明。<br>
   Localized in Simplified Chinese, Traditional Chinese, Japanese, English, French, German, and Spanish, with VoiceOver signal-strength descriptions.
 - 不扫描附近 Wi‑Fi 网络。<br>
@@ -37,9 +39,9 @@ Requires macOS 14 or later and supports Apple Silicon (arm64). This repository i
 
 ## 下载与运行 · Download and Run
 
-从 [GitHub Releases](https://github.com/Longhorn5048/DuoBarOnMac/releases/latest) 下载最新版本，解压后打开 `DuoBar.app`。仓库根目录也包含 v0.1.2 Apple Silicon（arm64）预构建版本。
+从 [GitHub Releases](https://github.com/Longhorn5048/DuoBarOnMac/releases/latest) 下载最新版本，解压后打开 `DuoBar.app`。仓库根目录也包含 v0.1.3 Apple Silicon（arm64）预构建版本。
 
-Download the latest version from [GitHub Releases](https://github.com/Longhorn5048/DuoBarOnMac/releases/latest), unzip it, and open `DuoBar.app`. The repository root also contains a prebuilt v0.1.2 app for Apple Silicon (arm64).
+Download the latest version from [GitHub Releases](https://github.com/Longhorn5048/DuoBarOnMac/releases/latest), unzip it, and open `DuoBar.app`. The repository root also contains a prebuilt v0.1.3 app for Apple Silicon (arm64).
 
 发布版本使用本地 ad-hoc 签名，未经 Apple Developer ID 公证。若 macOS 首次运行时弹出安全提示，请在“系统设置 → 隐私与安全性”中允许打开。
 
@@ -47,9 +49,9 @@ Release builds use a local ad-hoc signature and are not notarized with an Apple 
 
 ## 从源码构建 · Build from Source
 
-需要 Swift 5.10 或兼容版本，以及 macOS 14 或更高版本。
+需要 Xcode 26 或更高版本（包含 macOS 26 SDK）；构建的应用最低支持 macOS 14。
 
-Requires Swift 5.10 or compatible and macOS 14 or later.
+Requires Xcode 26 or later with the macOS 26 SDK. The built app runs on macOS 14 or later.
 
 ```sh
 swift build
@@ -68,7 +70,25 @@ DuoBarOnMac 只读取显示状态所需的本机电池、Wi‑Fi、蓝牙和网�
 
 DuoBarOnMac reads only local battery, Wi‑Fi, Bluetooth, and network-path information needed to display status. It does not upload data or scan for nearby Wi‑Fi networks.
 
+显示 Wi‑Fi 名称需定位权限（macOS 的系统要求）。在详情面板点击“显示名称…”授权；如果已拒绝，点击“允许定位…”前往系统设置。DuoBar 不收集位置，也不启动定位更新。
+
+macOS requires Location Services permission to read the Wi‑Fi name. Choose **Show Name…** in the details panel to grant access, or **Allow Location…** to open System Settings if access was denied. DuoBar does not collect your location or start location updates.
+
 ## 更新日志 · Changelog
+
+### v0.1.3 — 2026-11-15
+
+- 修复 Wi‑Fi 名称无法读取：补充定位授权入口，授权后自动刷新；已拒绝授权时可前往系统设置。
+- 菜单栏图标统一缩至 18 点，调整线条、数字与信号点比例，并校正垂直重心。
+- macOS 26 及以上使用原生 Liquid Glass 详情面板；旧系统保留普通毛玻璃。
+- 补充授权状态和图标居中测试；40 项测试通过，包含离线预览导出。
+
+### v0.1.3 — 2026-11-15
+
+- Fixed missing Wi‑Fi names by adding a Location Services permission action, refreshing after authorization, and linking to System Settings when access is denied.
+- Reduced the menu bar glyph to 18 pt, scaled its strokes, text, and signal dots, and corrected its vertical alignment.
+- Added native Liquid Glass to the details panel on macOS 26 and later, with a material fallback on older systems.
+- Added permission-state and glyph-alignment coverage; all 40 tests passed, including offline preview exports.
 
 ### v0.1.2 — 2026-09-17
 

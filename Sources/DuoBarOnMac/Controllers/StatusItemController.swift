@@ -6,15 +6,17 @@ import SwiftUI
 final class StatusItemController: NSObject {
     private let model: PresentationState
     private let motion: MotionCoordinator
+    private let wifiProvider: WiFiProvider
     private let statusItem = NSStatusBar.system.statusItem(withLength: 28)
     private let imageRenderer = GlyphImageRenderer()
     private var lastAccessibilityValue: String?
     private var appearanceObservation: NSKeyValueObservation?
     private var panelController: DetailsPanelController?
 
-    init(model: PresentationState, motion: MotionCoordinator) {
+    init(model: PresentationState, motion: MotionCoordinator, wifiProvider: WiFiProvider) {
         self.model = model
         self.motion = motion
+        self.wifiProvider = wifiProvider
         super.init()
     }
 
@@ -32,7 +34,8 @@ final class StatusItemController: NSObject {
             model: model,
             motion: motion,
             launchAtLogin: LaunchAtLoginService(),
-            statusButton: button
+            statusButton: button,
+            wifiProvider: wifiProvider
         )
         appearanceObservation = button.observe(\.effectiveAppearance, options: [.new]) { [weak self] _, _ in
             Task { @MainActor in self?.refreshGlyph() }
@@ -51,7 +54,7 @@ final class StatusItemController: NSObject {
         let dark = button.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
         let image = imageRenderer.image(
             snapshot: snapshot,
-            displaySize: menuGlyphSize(for: button),
+            displaySize: Self.menuGlyphSize,
             scale: button.window?.backingScaleFactor ?? NSScreen.main?.backingScaleFactor ?? 2,
             dark: dark
         )
@@ -66,10 +69,8 @@ final class StatusItemController: NSObject {
         }
     }
 
-    private func menuGlyphSize(for button: NSStatusBarButton) -> CGFloat {
-        let availableHeight = button.bounds.height > 0 ? button.bounds.height : 24
-        return min(24, max(22, availableHeight - 2))
-    }
+    // Match the system status icons instead of stretching with the menu bar height.
+    static let menuGlyphSize: CGFloat = 18
 
     private func accessibilityValue(for snapshot: GlyphSnapshot) -> String {
         DuoText.statusItemAccessibility(snapshot)

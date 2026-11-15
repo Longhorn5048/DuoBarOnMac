@@ -75,3 +75,7 @@
 "glyph_battery_charging_unknown" = "DuoBar，電量 %lld%%，Wi‑Fi 未知，正在充電";
 /* VoiceOver 狀態補充；%@ 為完整狀態，%lld 為有效訊號格數。 */
 "accessibility_wifi_signal" = "%@，Wi‑Fi 訊號強度 %lld 格（共 %lld 格）";
+
+"show_wifi_name" = "顯示名稱…";
+"allow_location" = "允許定位…";
+"wifi_name_permission_help" = "macOS 需要定位權限才能讀取 Wi‑Fi 名稱。";

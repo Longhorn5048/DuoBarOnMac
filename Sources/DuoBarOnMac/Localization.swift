@@ -5,6 +5,11 @@ enum DuoText {
 
     static let centerDisplay = resource("center_display", defaultValue: "Center Display")
     static let wifi = resource("wifi", defaultValue: "Wi‑Fi")
+    static let showWiFiName = resource("show_wifi_name", defaultValue: "Show Name…")
+    static let allowLocation = resource("allow_location", defaultValue: "Allow Location…")
+    static let wifiNamePermissionHelp = resource(
+        "wifi_name_permission_help", defaultValue: "macOS requires Location Services permission to read the Wi‑Fi name."
+    )
     static let battery = resource("battery", defaultValue: "Battery")
     static let bluetooth = resource("bluetooth", defaultValue: "Bluetooth")
     static let charging = resource("charging", defaultValue: "Charging")

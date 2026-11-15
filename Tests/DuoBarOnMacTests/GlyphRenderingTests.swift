@@ -4,6 +4,47 @@ import AppKit
 
 @MainActor
 final class GlyphRenderingTests: XCTestCase {
+    func testMenuGlyphVisibleBoundsStayCenteredAndUnclipped() throws {
+        let model = PresentationState()
+        model.battery = BatteryState(availability: .available, percent: 100, powerStatus: .onBattery)
+        let renderer = GlyphImageRenderer()
+        for scale: CGFloat in [1, 2] {
+            for dark in [false, true] {
+                for dots in WiFiDotCount.allCases {
+                    model.wifiDotCount = dots
+                    for progress in [0.0, 0.5, 1.0] {
+                        model.transitionProgress = progress
+                        model.wifi = WiFiState(status: .connected, rssi: -50)
+                        let image = renderer.image(
+                            snapshot: model.glyphSnapshot, displaySize: StatusItemController.menuGlyphSize,
+                            scale: scale, dark: dark
+                        )
+                        XCTAssertEqual(image.size, NSSize(width: 18, height: 18))
+                        var rect = NSRect(origin: .zero, size: image.size)
+                        let cgImage = try XCTUnwrap(image.cgImage(forProposedRect: &rect, context: nil, hints: nil))
+                        let bitmap = NSBitmapImageRep(cgImage: cgImage)
+                        var rows: [Int] = []
+                        for y in 0..<bitmap.pixelsHigh {
+                            if (0..<bitmap.pixelsWide).contains(where: {
+                                (bitmap.colorAt(x: $0, y: y)?.alphaComponent ?? 0) > 0.04
+                            }) {
+                                rows.append(y)
+                            }
+                        }
+                        let top = try XCTUnwrap(rows.first)
+                        let bottom = try XCTUnwrap(rows.last)
+                        XCTAssertGreaterThan(top, 0, "Top edge must retain transparent padding")
+                        XCTAssertLessThan(bottom, bitmap.pixelsHigh - 1, "Bottom edge must retain transparent padding")
+                        XCTAssertEqual(
+                            Double(top + bottom) / 2, Double(bitmap.pixelsHigh - 1) / 2,
+                            accuracy: 0.75, "Visible bounds must stay centered across modes and display scales"
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     func testSignalChangesWithinSameBarReuseImageButCrossingThresholdRenders() {
         let model = PresentationState()
         let renderer = GlyphImageRenderer()

@@ -18,7 +18,7 @@ private struct GlyphMetrics {
     init(layout: GlyphLayout, displaySize: CGFloat) {
         switch layout {
         case .menu:
-            let scale = 24 / displaySize
+            let scale = 24 / max(displaySize, 22)
             ringStroke = 1.9 * scale
             centerStroke = 1.75 * scale
             dotDiameter = 2.6 * scale
@@ -73,6 +73,8 @@ struct DuoGlyphView: View {
             CenterMorphView(snapshot: snapshot, foreground: foreground, metrics: metrics)
         }
         .frame(width: 24, height: 24)
+        // The open bottom of the ring makes its visible bounds sit above the canvas center.
+        .offset(y: layout == .menu ? 1.5 : 0)
         .scaleEffect(displaySize / 24)
         .frame(width: displaySize, height: displaySize)
         .accessibilityElement(children: .ignore)

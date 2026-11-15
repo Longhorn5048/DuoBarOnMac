@@ -6,6 +6,7 @@ final class DetailsPanelController {
     private let model: PresentationState
     private let motion: MotionCoordinator
     private let launchAtLogin: LaunchAtLoginService
+    private let wifiProvider: WiFiProvider
     private weak var statusButton: NSStatusBarButton?
     private var panel: DetailsPanel?
     private var localMonitor: Any?
@@ -16,11 +17,13 @@ final class DetailsPanelController {
         model: PresentationState,
         motion: MotionCoordinator,
         launchAtLogin: LaunchAtLoginService,
-        statusButton: NSStatusBarButton
+        statusButton: NSStatusBarButton,
+        wifiProvider: WiFiProvider
     ) {
         self.model = model
         self.motion = motion
         self.launchAtLogin = launchAtLogin
+        self.wifiProvider = wifiProvider
         self.statusButton = statusButton
         isLaunchAtLogin = launchAtLogin.isEnabled
     }
@@ -30,6 +33,7 @@ final class DetailsPanelController {
     }
 
     func open() {
+        wifiProvider.refresh()
         if panel == nil {
             makePanel()
         }
@@ -96,6 +100,7 @@ final class DetailsPanelController {
             onEventHintsChange: { [weak self] enabled in
                 self?.model.setEventHintsEnabled(enabled)
             },
+            onRequestWiFiName: { [weak self] in self?.wifiProvider.requestNameAccess() },
             onQuit: {
                 NSApp.terminate(nil)
             }
@@ -114,6 +119,7 @@ final class DetailsPanelController {
             onModeChange: { [weak self] mode in self?.motion.move(to: mode) },
             onLaunchAtLoginChange: { [weak self] value in self?.setLaunchAtLogin(value) },
             onEventHintsChange: { [weak self] value in self?.model.setEventHintsEnabled(value) },
+            onRequestWiFiName: { [weak self] in self?.wifiProvider.requestNameAccess() },
             onQuit: { NSApp.terminate(nil) }
         ))
     }

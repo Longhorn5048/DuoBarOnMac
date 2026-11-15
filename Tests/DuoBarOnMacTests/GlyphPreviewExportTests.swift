@@ -13,14 +13,39 @@ final class GlyphPreviewExportTests: XCTestCase {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         try exportRingComparison(to: directory.appendingPathComponent("duobar-v0.1.2-ring-calibration.png"))
         try exportWiFiDotComparison(to: directory.appendingPathComponent("duobar-v0.1.2-wifi-dots.png"))
+        try exportMenuContents(to: directory.appendingPathComponent("duobar-menu-18pt.png"))
+    }
+
+    private func exportMenuContents(to url: URL) throws {
+        let bitmap = makeBitmap(width: 640, height: 240)
+        let model = PresentationState()
+        model.wifi = WiFiState(status: .connected, rssi: -50)
+        let renderer = GlyphImageRenderer()
+        withContext(bitmap) { context in
+            for (row, dark) in [false, true].enumerated() {
+                let y = row * 120
+                fill(NSRect(x: 0, y: y, width: 640, height: 120), color: dark ? .darkGray : .white)
+                for (column, percent) in [5, 50, 80, 100].enumerated() {
+                    model.battery = BatteryState(availability: .available, percent: percent, powerStatus: .onBattery)
+                    model.transitionProgress = 1
+                    let image = renderer.image(snapshot: model.glyphSnapshot, displaySize: 18, scale: 2, dark: dark)
+                    draw(image, in: NSRect(x: column * 160 + 44, y: y + 24, width: 72, height: 72), context: context)
+                }
+            }
+        }
+        try writePNG(bitmap, to: url)
     }
 
     private func exportRingComparison(to url: URL) throws {
         let sizes: [(CGFloat, CGFloat, Bool, String)] = [
+            (18, 1, false, "18 pt · 1× · light"),
+            (18, 2, false, "18 pt · 2× · light"),
             (22, 1, false, "22 pt · 1× · light"),
             (22, 2, false, "22 pt · 2× · light"),
             (24, 1, false, "24 pt · 1× · light"),
             (24, 2, false, "24 pt · 2× · light"),
+            (18, 1, true, "18 pt · 1× · dark"),
+            (18, 2, true, "18 pt · 2× · dark"),
             (22, 1, true, "22 pt · 1× · dark"),
             (22, 2, true, "22 pt · 2× · dark"),
             (24, 1, true, "24 pt · 1× · dark"),
@@ -87,10 +112,14 @@ final class GlyphPreviewExportTests: XCTestCase {
         let cellHeight = 124
         let headerHeight = 36
         let variants: [(CGFloat, CGFloat, Bool, String)] = [
+            (18, 1, false, "Light · 18 pt · 1×"),
+            (18, 2, false, "Light · 18 pt · 2×"),
             (22, 1, false, "Light · 22 pt · 1×"),
             (22, 2, false, "Light · 22 pt · 2×"),
             (24, 1, false, "Light · 24 pt · 1×"),
             (24, 2, false, "Light · 24 pt · 2×"),
+            (18, 1, true, "Dark · 18 pt · 1×"),
+            (18, 2, true, "Dark · 18 pt · 2×"),
             (22, 1, true, "Dark · 22 pt · 1×"),
             (22, 2, true, "Dark · 22 pt · 2×"),
             (24, 1, true, "Dark · 24 pt · 1×"),
