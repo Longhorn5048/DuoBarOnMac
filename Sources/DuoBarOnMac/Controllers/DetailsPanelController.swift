@@ -105,7 +105,7 @@ final class DetailsPanelController {
                 NSApp.terminate(nil)
             }
         )
-        panel.contentView = NSHostingView(rootView: content)
+        panel.contentView = DetailsHostingView(rootView: content)
         self.panel = panel
     }
 
@@ -113,7 +113,7 @@ final class DetailsPanelController {
         guard launchAtLogin.setEnabled(enabled) else { return }
         isLaunchAtLogin = enabled
         // Rebuild the root view so the toggle reflects the result immediately.
-        panel?.contentView = NSHostingView(rootView: DetailsView(
+        panel?.contentView = DetailsHostingView(rootView: DetailsView(
             model: model,
             isLaunchAtLogin: isLaunchAtLogin,
             onModeChange: { [weak self] mode in self?.motion.move(to: mode) },
@@ -172,6 +172,24 @@ final class DetailsPanelController {
         }
     }
 
+}
+
+// Clip the backing surface too: native glass can otherwise draw a rectangular
+// edge outside the SwiftUI surface when hosted in a borderless panel.
+final class DetailsHostingView<Content: View>: NSHostingView<Content> {
+    required init(rootView: Content) {
+        super.init(rootView: rootView)
+        wantsLayer = true
+        layer?.backgroundColor = NSColor.clear.cgColor
+        layer?.cornerRadius = DetailsView.cornerRadius
+        layer?.cornerCurve = .continuous
+        layer?.masksToBounds = true
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("Use init(rootView:)")
+    }
 }
 
 final class DetailsPanel: NSPanel {

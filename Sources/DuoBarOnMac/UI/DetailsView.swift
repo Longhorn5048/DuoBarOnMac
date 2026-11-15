@@ -2,6 +2,8 @@ import AppKit
 import SwiftUI
 
 struct DetailsView: View {
+    static let cornerRadius: CGFloat = 16
+
     let model: PresentationState
     let isLaunchAtLogin: Bool
     let onModeChange: (CenterMode) -> Void
@@ -30,15 +32,16 @@ struct DetailsView: View {
         .padding(16)
         .frame(width: 280)
         .modifier(DetailsSurface())
+        .clipShape(RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous))
     }
 }
 
 private struct DetailsSurface: ViewModifier {
     func body(content: Content) -> some View {
         if #available(macOS 26.0, *) {
-            content.glassEffect(.regular, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            content.glassEffect(.regular, in: RoundedRectangle(cornerRadius: DetailsView.cornerRadius, style: .continuous))
         } else {
-            content.background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            content.background(.regularMaterial, in: RoundedRectangle(cornerRadius: DetailsView.cornerRadius, style: .continuous))
         }
     }
 }

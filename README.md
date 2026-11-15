@@ -39,9 +39,9 @@ Requires macOS 14 or later and supports Apple Silicon (arm64). This repository i
 
 ## 下载与运行 · Download and Run
 
-从 [GitHub Releases](https://github.com/Longhorn5048/DuoBarOnMac/releases/latest) 下载最新版本，解压后打开 `DuoBar.app`。仓库根目录也包含 v0.1.3 Apple Silicon（arm64）预构建版本。
+从 [GitHub Releases](https://github.com/Longhorn5048/DuoBarOnMac/releases/latest) 下载最新版本，解压后打开 `DuoBar.app`。仓库根目录也包含 v0.1.3_1 Apple Silicon（arm64）预构建版本。
 
-Download the latest version from [GitHub Releases](https://github.com/Longhorn5048/DuoBarOnMac/releases/latest), unzip it, and open `DuoBar.app`. The repository root also contains a prebuilt v0.1.3 app for Apple Silicon (arm64).
+Download the latest version from [GitHub Releases](https://github.com/Longhorn5048/DuoBarOnMac/releases/latest), unzip it, and open `DuoBar.app`. The repository root also contains a prebuilt v0.1.3_1 app for Apple Silicon (arm64).
 
 发布版本使用本地 ad-hoc 签名，未经 Apple Developer ID 公证。若 macOS 首次运行时弹出安全提示，请在“系统设置 → 隐私与安全性”中允许打开。
 
@@ -75,6 +75,16 @@ DuoBarOnMac reads only local battery, Wi‑Fi, Bluetooth, and network-path infor
 macOS requires Location Services permission to read the Wi‑Fi name. Choose **Show Name…** in the details panel to grant access, or **Allow Location…** to open System Settings if access was denied. DuoBar does not collect your location or start location updates.
 
 ## 更新日志 · Changelog
+
+### v0.1.3_1 — 2026-11-15
+
+- 修复打开详情菜单后出现的直角矩形外框，统一玻璃层与窗口内容的圆角裁切。
+- 保留原生 Liquid Glass 和窗口阴影；应用内部版本号为 0.1.3，构建号为 5。
+
+### v0.1.3_1 — 2026-11-15
+
+- Fixed the rectangular outline around the details menu by applying matching rounded clipping to the glass surface and its hosting view.
+- Preserved native Liquid Glass and the window shadow. The app version remains 0.1.3 with build number 5.
 
 ### v0.1.3 — 2026-11-15
 
